@@ -18,6 +18,7 @@ function render() {
 
   const progress = Math.round((state.idx / QUESTIONS.length) * 100);
   const current = state.answers[q.id];
+  const atLast = state.idx === QUESTIONS.length - 1;
 
   app.innerHTML = `
     <div class="row">
@@ -35,14 +36,20 @@ function render() {
     </div>
 
     <div class="footer">
-      <button id="backBtn" class="btn small ghost" ${state.idx === 0 ? "disabled" : ""}>上一步</button>
-      <button id="skipBtn" class="btn small">跳过</button>
+      <button id="backBtn" class="btn small ghost" ${state.idx === 0 ? "disabled" : ""}>上一题</button>
+      ${
+        atLast
+          ? `<button id="submitBtn" class="btn small">提交</button>`
+          : ``
+      }
     </div>
   `;
 
   document.getElementById("resetBtn").addEventListener("click", onReset);
   document.getElementById("backBtn").addEventListener("click", onBack);
-  document.getElementById("skipBtn").addEventListener("click", onSkip);
+
+  const submitBtn = document.getElementById("submitBtn");
+  if (submitBtn) submitBtn.addEventListener("click", onSubmit);
 
   renderOptions(q, current);
   saveState(state);
@@ -59,6 +66,8 @@ function renderOptions(q, current) {
       btn.innerHTML = `${selected ? "✅ " : ""}${esc(opt.label)}`;
       btn.addEventListener("click", () => {
         state.answers[q.id] = opt.value;
+
+        // ✅ 保留：单选自动下一题
         state.idx += 1;
         render();
       });
@@ -91,6 +100,7 @@ function renderOptions(q, current) {
       box.appendChild(btn);
     });
 
+    // ✅ 保留：多选用“继续”进入下一题（你原本就这样）
     const go = document.createElement("button");
     go.className = "btn small";
     go.style.marginTop = "4px";
@@ -101,6 +111,7 @@ function renderOptions(q, current) {
       render();
     });
     box.appendChild(go);
+
     return;
   }
 
@@ -128,8 +139,12 @@ function onBack() {
   }
 }
 
-function onSkip() {
-  state.idx += 1;
+function onSubmit() {
+  // 只允许在最后一题点击提交
+  if (state.idx !== QUESTIONS.length - 1) return;
+
+  // ✅ 关键：把 idx 推到 questions 末尾，让 render() 进入结果页
+  state.idx = QUESTIONS.length;
   render();
 }
 

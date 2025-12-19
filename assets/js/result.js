@@ -8,6 +8,13 @@ const ROLE_LABEL = {
   R4: "合规与监管视角",
   R5: "信息充分性视角",
 };
+const ROLE_DESC = {
+  R1: "政策是否接受你这个主体（是否需要海南主体、是否被政策排除）",
+  R2: "你的货从哪来、到哪去，决定是否触发一线、二线或岛内流通",
+  R3: "你是否在海南从事被政策认可的实质经营活动",
+  R4: "你是否愿意进入政策要求的申报、备案和监管流程",
+  R5: "当前信息是否足够让系统继续判断",
+};
 
 const ROLE_ORDER = ["R1", "R2", "R3", "R4", "R5"];
 
@@ -35,7 +42,6 @@ export function renderResult(appEl, state, { onReset, onBackToLast }) {
       </div>
 
       <div class="qtitle">你的政策路径判断结果</div>
-      <div class="qdesc">系统只负责把你的情况贴到政策路径上，不输出收益/赚钱结论。</div>
 
       <div>
         ${statusCounts.OK ? `<span class="tag good">${esc(STATUS_LABEL.OK)} · ${statusCounts.OK}</span>` : ""}
@@ -45,7 +51,7 @@ export function renderResult(appEl, state, { onReset, onBackToLast }) {
 
       <div class="divider"></div>
 
-      <div class="section-title">政策角色视角解读（切换查看“为什么”）</div>
+      <div class="section-title">政策角色视角解读</div>
       <div class="role-tabs">
         ${ROLE_ORDER.map(r => `
           <button class="role-btn ${r === currentRole ? "active" : ""}" data-role="${r}">
@@ -53,10 +59,6 @@ export function renderResult(appEl, state, { onReset, onBackToLast }) {
           </button>
         `).join("")}
       </div>
-
-      <div class="mini">当前视角：<b>${esc(ROLE_LABEL[currentRole])}</b>（只展示与该角色相关的“否定原因/条件不足/不相关”）</div>
-      <div style="height:10px;"></div>
-
       ${renderRoleView(result.paths, currentRole)}
 
       <div class="divider"></div>
