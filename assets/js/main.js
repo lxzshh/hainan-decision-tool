@@ -2,7 +2,7 @@
 import { QUESTIONS } from "./data.js";
 import { renderResult } from "./result.js";
 
-const STORAGE_KEY = "hainan_decision_tool_state_v11";
+const STORAGE_KEY = "hainan_decision_tool_state_v12";
 const app = document.getElementById("app");
 
 const state = loadState() || {
@@ -21,7 +21,7 @@ function render() {
 
   app.innerHTML = `
     <div class="row">
-      <div class="pill">第 ${state.idx + 1} / ${QUESTIONS.length} 题 · L${q.layer}</div>
+      <div class="pill">第 ${state.idx + 1} / ${QUESTIONS.length} 题 · L${q.layer} · ${esc(q.roles?.join(", ") || "")}</div>
       <button id="resetBtn" class="btn small ghost" style="max-width:120px;">重置</button>
     </div>
 
@@ -111,7 +111,7 @@ function renderOptions(q, current) {
 }
 
 function renderResultPage() {
-  renderResult(app, state, QUESTIONS, {
+  renderResult(app, state, {
     onReset,
     onBackToLast: () => {
       state.idx = Math.max(QUESTIONS.length - 1, 0);

@@ -1,82 +1,153 @@
 // js/result.js
 import { evaluate } from "./rules.js";
 
-export function renderResult(appEl, state, questions, { onReset, onBackToLast }) {
+const ROLE_LABEL = {
+  R1: "经营主体视角",
+  R2: "货物与贸易视角",
+  R3: "加工与产业视角",
+  R4: "合规与监管视角",
+  R5: "信息充分性视角",
+};
+
+const ROLE_ORDER = ["R1", "R2", "R3", "R4", "R5"];
+
+const STATUS_LABEL = {
+  OK: "✓ 可进入判断/路径成立",
+  COND: "⚠ 条件成立（需补充/满足条件）",
+  NO: "✕ 明确不成立",
+};
+
+export function renderResult(appEl, state, { onReset, onBackToLast }) {
   const result = evaluate(state.answers);
+  let currentRole = "R1";
 
-  const ok = result.summary.byStatus.ok;
-  const cond = result.summary.byStatus.cond;
-  const no = result.summary.byStatus.no;
-  const info = result.summary.byStatus.info;
+  function render() {
+    const statusCounts = {
+      OK: result.summary.byStatus.OK.length,
+      COND: result.summary.byStatus.COND.length,
+      NO: result.summary.byStatus.NO.length,
+    };
 
-  appEl.innerHTML = `
-    <div class="row">
-      <div class="pill">已完成 · 输出“政策路径判断结果”</div>
-      <button id="resetBtn" class="btn small ghost" style="max-width:120px;">重新开始</button>
-    </div>
+    appEl.innerHTML = `
+      <div class="row">
+        <div class="pill">已完成 · 输出“政策路径判断结果”</div>
+        <button id="resetBtn" class="btn small ghost" style="max-width:120px;">重新开始</button>
+      </div>
 
-    <div class="qtitle">你的政策路径判断结果</div>
-    <div class="qdesc">系统只负责把你的情况贴到政策路径上，不输出收益/赚钱结论。</div>
+      <div class="qtitle">你的政策路径判断结果</div>
+      <div class="qdesc">系统只负责把你的情况贴到政策路径上，不输出收益/赚钱结论。</div>
 
-    ${renderTags(ok, "good", "✓ 可进入判断/路径成立")}
-    ${renderTags(cond, "warn", "⚠ 条件成立（需补充/满足前置条件）")}
-    ${renderTags(no, "bad", "✕ 明确不成立")}
-    ${renderTags(info, "info", "ℹ 信息/路径不相关或精度受限")}
+      <div>
+        ${statusCounts.OK ? `<span class="tag good">${esc(STATUS_LABEL.OK)} · ${statusCounts.OK}</span>` : ""}
+        ${statusCounts.COND ? `<span class="tag warn">${esc(STATUS_LABEL.COND)} · ${statusCounts.COND}</span>` : ""}
+        ${statusCounts.NO ? `<span class="tag bad">${esc(STATUS_LABEL.NO)} · ${statusCounts.NO}</span>` : ""}
+      </div>
 
-    <div class="divider"></div>
+      <div class="divider"></div>
 
-    ${renderPathSection("✓ 可进入判断/路径成立", ok)}
-    ${renderPathSection("⚠ 条件成立（需补充/满足前置条件）", cond)}
-    ${renderPathSection("✕ 明确不成立", no)}
-    ${renderPathSection("ℹ 信息/路径不相关或精度受限", info)}
+      <div class="section-title">政策角色视角解读（切换查看“为什么”）</div>
+      <div class="role-tabs">
+        ${ROLE_ORDER.map(r => `
+          <button class="role-btn ${r === currentRole ? "active" : ""}" data-role="${r}">
+            ${esc(ROLE_LABEL[r])}
+          </button>
+        `).join("")}
+      </div>
 
-    <div class="divider"></div>
+      <div class="mini">当前视角：<b>${esc(ROLE_LABEL[currentRole])}</b>（只展示与该角色相关的“否定原因/条件不足/不相关”）</div>
+      <div style="height:10px;"></div>
 
-    <div class="section-title">系统提示</div>
-    ${result.summary.notes.length
-      ? `<ul class="list">${result.summary.notes.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`
-      : `<div class="note">暂无额外提示。</div>`}
+      ${renderRoleView(result.paths, currentRole)}
 
-    <div class="divider"></div>
-    <div class="note">${esc(result.summary.disclaimer)}</div>
+      <div class="divider"></div>
 
-    <div class="footer">
-      <button id="backBtn" class="btn small ghost">回到上一题</button>
-      <button id="copyBtn" class="btn small">复制结果摘要</button>
-    </div>
-  `;
+      <div class="section-title">路径总览（按路径状态）</div>
+      ${renderStatusSection(result, "OK", "good")}
+      ${renderStatusSection(result, "COND", "warn")}
+      ${renderStatusSection(result, "NO", "bad")}
 
-  document.getElementById("resetBtn").addEventListener("click", onReset);
-  document.getElementById("backBtn").addEventListener("click", onBackToLast);
-  document.getElementById("copyBtn").addEventListener("click", () => {
-    const text = buildCopyText(result);
-    navigator.clipboard?.writeText(text);
-    alert("已复制到剪贴板");
-  });
+      <div class="divider"></div>
+
+      <div class="note">${esc(result.summary.disclaimer)}</div>
+
+      <div class="footer">
+        <button id="backBtn" class="btn small ghost">回到上一题</button>
+        <button id="copyBtn" class="btn small">复制结果摘要</button>
+      </div>
+    `;
+
+    appEl.querySelectorAll(".role-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentRole = btn.dataset.role;
+        render();
+      });
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", onReset);
+    document.getElementById("backBtn").addEventListener("click", onBackToLast);
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      const text = buildCopyText(result);
+      navigator.clipboard?.writeText(text);
+      alert("已复制到剪贴板");
+    });
+  }
+
+  render();
 }
 
-function renderTags(items, cls, label) {
-  if (!items.length) return "";
-  return `
-    <div style="margin:8px 0 2px;">
-      <span class="tag ${cls}">${esc(label)} · ${items.length}</span>
-    </div>
-  `;
+function renderRoleView(paths, role) {
+  const cards = paths
+    .map(p => {
+      const rel = p.blockers.filter(b => b.role === role);
+      if (!rel.length) return "";
+      return `
+        <div class="path-card">
+          <h3>${esc(p.title)}
+            <span class="badge">${esc(p.status)}</span>
+          </h3>
+          <ul class="list">
+            ${rel.map(b => `<li>${iconFor(b.type)} ${esc(b.reason)}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    })
+    .filter(Boolean);
+
+  if (!cards.length) {
+    return `<div class="note">在该视角下，没有触发需要解释的否定/条件项。</div>`;
+  }
+  return cards.join("");
 }
 
-function renderPathSection(title, items) {
+function renderStatusSection(result, status, cls) {
+  const items = result.summary.byStatus[status] || [];
   if (!items.length) return "";
+
+  const title = STATUS_LABEL[status];
   return `
     <div class="section-title">${esc(title)}</div>
     ${items.map(p => `
       <div class="note" style="margin-bottom:10px;">
-        <div style="font-weight:800; color:rgba(232,234,240,.95); margin-bottom:6px;">${esc(p.title)}</div>
-        <ul class="list">
-          ${p.reasons.map(r => `<li>${esc(r)}</li>`).join("")}
-        </ul>
+        <div style="font-weight:900; margin-bottom:6px;">${esc(p.title)}</div>
+        ${p.blockers.length ? `
+          <ul class="list">
+            ${p.blockers.map(b => `
+              <li>
+                <span class="tag ${cls}" style="margin:0 6px 0 0; padding:3px 8px;">${esc(b.role)}</span>
+                ${iconFor(b.type)} ${esc(b.reason)}
+              </li>
+            `).join("")}
+          </ul>
+        ` : `<div class="mini">无阻碍项（当前输入下该路径可进入判断）。</div>`}
       </div>
     `).join("")}
   `;
+}
+
+function iconFor(type) {
+  if (type === "HARD") return "❌";
+  if (type === "SOFT") return "⚠️";
+  return "ℹ️";
 }
 
 function buildCopyText(result) {
@@ -85,26 +156,23 @@ function buildCopyText(result) {
   lines.push("");
 
   const order = [
-    ["✓ 可进入判断/路径成立", "ok"],
-    ["⚠ 条件成立（需补充/满足前置条件）", "cond"],
-    ["✕ 明确不成立", "no"],
-    ["ℹ 信息/路径不相关或精度受限", "info"],
+    ["OK", "✓ 可进入判断/路径成立"],
+    ["COND", "⚠ 条件成立（需补充/满足条件）"],
+    ["NO", "✕ 明确不成立"],
   ];
 
-  for (const [label, key] of order) {
-    const items = result.summary.byStatus[key] || [];
+  for (const [status, label] of order) {
+    const items = result.summary.byStatus[status] || [];
     if (!items.length) continue;
     lines.push(label);
-    items.forEach((p) => {
+    items.forEach(p => {
       lines.push(`- ${p.title}`);
-      p.reasons.forEach(r => lines.push(`  • ${r}`));
+      if (p.blockers?.length) {
+        p.blockers.forEach(b => lines.push(`  • [${b.role}/${b.type}] ${b.reason}`));
+      } else {
+        lines.push(`  • 无阻碍项`);
+      }
     });
-    lines.push("");
-  }
-
-  if (result.summary.notes?.length) {
-    lines.push("系统提示");
-    result.summary.notes.forEach(n => lines.push(`- ${n}`));
     lines.push("");
   }
 
