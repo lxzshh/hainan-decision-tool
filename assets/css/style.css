@@ -1,179 +1,107 @@
-:root {
-  --bg: #f7f7f8;
-  --card: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --shadow: 0 6px 18px rgba(0,0,0,.06);
-  --radius: 14px;
-  --maxw: 900px;
+:root{
+  --bg:#0b0c10;
+  --card:#111318;
+  --text:#e8eaf0;
+  --muted:#a6adbb;
+  --line: rgba(255,255,255,.10);
+  --btn:#1b1f2a;
+  --btn2:#22283a;
+  --good:#22c55e;
+  --warn:#f59e0b;
+  --bad:#ef4444;
+  --info:#60a5fa;
 }
-
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+*{box-sizing:border-box;}
+body{
+  margin:0; background:linear-gradient(180deg, #07080b 0%, #0b0c10 40%, #0b0c10 100%);
+  color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Microsoft YaHei, Arial;
 }
-
-body {
-  padding: 16px;
-  padding-bottom: 86px; /* 给底部操作栏留空间 */
+.wrap{
+  max-width:720px; margin:0 auto; padding:14px 14px 28px;
 }
-
-h1 {
-  font-size: 18px;
-  margin: 6px 0 6px;
+.topbar{
+  position:sticky; top:0; z-index:5;
+  backdrop-filter: blur(12px);
+  background: linear-gradient(180deg, rgba(11,12,16,.92) 0%, rgba(11,12,16,.72) 100%);
+  border-bottom:1px solid var(--line);
+  padding:12px 14px;
+  margin:0 -14px 14px;
 }
-
-.subtitle {
-  margin: 0 0 14px;
-  color: var(--muted);
-  line-height: 1.55;
-  font-size: 13px;
+.title{font-size:16px; font-weight:800; letter-spacing:.2px;}
+.sub{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.4;}
+.card{
+  background:rgba(17,19,24,.92);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  box-shadow: 0 14px 40px rgba(0,0,0,.35);
 }
-
-.container {
-  max-width: var(--maxw);
-  margin: 0 auto;
+.row{display:flex; gap:10px; align-items:center; justify-content:space-between;}
+.pill{
+  font-size:12px; color:var(--muted);
+  border:1px solid var(--line);
+  padding:6px 10px; border-radius:999px;
+  background: rgba(255,255,255,.04);
 }
-
-/* 问题卡片 */
-.question {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin: 12px 0;
-  box-shadow: var(--shadow);
+.qtitle{font-size:18px; font-weight:800; line-height:1.35; margin:10px 0 10px;}
+.qdesc{font-size:13px; color:var(--muted); line-height:1.5; margin:0 0 12px;}
+.options{display:flex; flex-direction:column; gap:10px;}
+.btn{
+  width:100%;
+  border:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(27,31,42,.95) 0%, rgba(20,23,32,.95) 100%);
+  color:var(--text);
+  border-radius:14px;
+  padding:12px 12px;
+  font-size:14px;
+  text-align:left;
+  cursor:pointer;
+  transition: transform .06s ease, background .15s ease, border-color .15s ease;
 }
-
-.question h3 {
-  margin: 0 0 10px;
-  font-size: 15px;
-  line-height: 1.4;
+.btn:active{transform: scale(.99);}
+.btn:hover{border-color: rgba(255,255,255,.18); background: rgba(34,40,58,.85);}
+.btn.small{padding:10px 12px; font-weight:700; text-align:center;}
+.btn.ghost{
+  background: transparent;
+  border:1px dashed var(--line);
+  color:var(--muted);
 }
-
-.options {
-  display: grid;
-  gap: 10px;
+.footer{
+  margin-top:12px;
+  display:flex; gap:10px;
 }
-
-/* 选项做成可点击的大块区域（手机关键） */
-.options label {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 12px 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  line-height: 1.35;
+.footer .btn{flex:1;}
+.progress{
+  height:8px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  overflow:hidden;
+  border:1px solid var(--line);
+  margin-top:10px;
 }
-
-.options label:active {
-  transform: scale(0.995);
+.bar{height:100%; width:0%; background: rgba(96,165,250,.85);}
+.divider{height:1px; background: var(--line); margin:14px 0;}
+.section-title{font-size:14px; font-weight:800; margin:0 0 10px;}
+.tag{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:12px; padding:6px 10px; border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  margin:0 8px 8px 0;
+  color:var(--muted);
 }
-
-/* radio 更好点按 */
-.options input[type="radio"] {
-  transform: scale(1.15);
-  margin-top: 2px;
+.tag.good{color:rgba(34,197,94,.95); border-color: rgba(34,197,94,.25); background: rgba(34,197,94,.08);}
+.tag.warn{color:rgba(245,158,11,.95); border-color: rgba(245,158,11,.25); background: rgba(245,158,11,.08);}
+.tag.bad{color:rgba(239,68,68,.95); border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.08);}
+.tag.info{color:rgba(96,165,250,.95); border-color: rgba(96,165,250,.25); background: rgba(96,165,250,.08);}
+.list{
+  margin:0; padding-left:18px; color:var(--muted);
+  line-height:1.6; font-size:13px;
 }
-
-/* 底部操作栏（固定） */
-.actions {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 12px 16px;
-  background: rgba(247,247,248,0.92);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-button {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-button.primary {
-  background: #111827;
-  color: #fff;
-  border-color: #111827;
-}
-
-button.secondary {
-  background: #ffffff;
-  color: #111827;
-}
-
-button:active {
-  transform: scale(0.995);
-}
-
-/* 结果 */
-.result-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  margin-top: 16px;
-  box-shadow: var(--shadow);
-}
-
-.badge {
-  font-weight: 800;
-  margin-bottom: 8px;
-  font-size: 15px;
-}
-
-.risks {
-  margin-top: 10px;
-  color: var(--text);
-}
-
-.risks ul {
-  margin: 8px 0 0;
-  padding-left: 18px;
-}
-
-.risks li {
-  margin: 6px 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-/* iOS 底部安全区 */
-.safe-bottom {
-  height: env(safe-area-inset-bottom);
-}
-
-/* ===== 桌面优化（宽屏时）===== */
-@media (min-width: 768px) {
-  body { padding: 24px; padding-bottom: 24px; }
-  .actions {
-    position: static;
-    background: transparent;
-    border: none;
-    backdrop-filter: none;
-    grid-template-columns: auto auto;
-    justify-content: flex-start;
-    max-width: var(--maxw);
-    margin: 14px auto 0;
-    padding: 0;
-  }
-  button { width: auto; min-width: 140px; }
+.note{
+  font-size:12px; color:var(--muted); line-height:1.5;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  padding:10px 12px;
+  border-radius:14px;
 }

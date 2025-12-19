@@ -1,30 +1,122 @@
-function renderResult(output) {
-  const box = document.getElementById("result");
+// js/result.js
+import { evaluate } from "./rules.js";
 
-  let title = "";
-  let desc = "";
+export function renderResult(appEl, state, questions, { onReset, onBackToLast }) {
+  const result = evaluate(state.answers);
 
-  if (output.result === "NOT_SUITABLE") {
-    title = "🟥 当前不适合进入海南自贸港";
-    desc = "存在关键性政策不匹配，继续推进风险较高。";
-  } else if (output.result === "HIGH_RISK") {
-    title = "🟨 存在可行路径，但整体风险较高";
-    desc = "部分条件符合，但需高度关注合规与补税风险。";
-  } else {
-    title = "🟩 理论上具备政策适配可能";
-    desc = "未发现明显硬性冲突，但仍需以实际备案和核查为准。";
-  }
+  const ok = result.summary.byStatus.ok;
+  const cond = result.summary.byStatus.cond;
+  const no = result.summary.byStatus.no;
+  const info = result.summary.byStatus.info;
 
-  box.innerHTML = `
-    <div class="result-box">
-      <div class="badge">${title}</div>
-      <div>${desc}</div>
-      <div class="risks">
-        <strong>风险清单：</strong>
-        <ul>
-          ${output.risks.length ? output.risks.map(r => `<li>${r}</li>`).join("") : "<li>暂无明显风险项</li>"}
-        </ul>
-      </div>
+  appEl.innerHTML = `
+    <div class="row">
+      <div class="pill">已完成 · 输出“政策路径判断结果”</div>
+      <button id="resetBtn" class="btn small ghost" style="max-width:120px;">重新开始</button>
+    </div>
+
+    <div class="qtitle">你的政策路径判断结果</div>
+    <div class="qdesc">系统只负责把你的情况贴到政策路径上，不输出收益/赚钱结论。</div>
+
+    ${renderTags(ok, "good", "✓ 可进入判断/路径成立")}
+    ${renderTags(cond, "warn", "⚠ 条件成立（需补充/满足前置条件）")}
+    ${renderTags(no, "bad", "✕ 明确不成立")}
+    ${renderTags(info, "info", "ℹ 信息/路径不相关或精度受限")}
+
+    <div class="divider"></div>
+
+    ${renderPathSection("✓ 可进入判断/路径成立", ok)}
+    ${renderPathSection("⚠ 条件成立（需补充/满足前置条件）", cond)}
+    ${renderPathSection("✕ 明确不成立", no)}
+    ${renderPathSection("ℹ 信息/路径不相关或精度受限", info)}
+
+    <div class="divider"></div>
+
+    <div class="section-title">系统提示</div>
+    ${result.summary.notes.length
+      ? `<ul class="list">${result.summary.notes.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`
+      : `<div class="note">暂无额外提示。</div>`}
+
+    <div class="divider"></div>
+    <div class="note">${esc(result.summary.disclaimer)}</div>
+
+    <div class="footer">
+      <button id="backBtn" class="btn small ghost">回到上一题</button>
+      <button id="copyBtn" class="btn small">复制结果摘要</button>
     </div>
   `;
+
+  document.getElementById("resetBtn").addEventListener("click", onReset);
+  document.getElementById("backBtn").addEventListener("click", onBackToLast);
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const text = buildCopyText(result);
+    navigator.clipboard?.writeText(text);
+    alert("已复制到剪贴板");
+  });
+}
+
+function renderTags(items, cls, label) {
+  if (!items.length) return "";
+  return `
+    <div style="margin:8px 0 2px;">
+      <span class="tag ${cls}">${esc(label)} · ${items.length}</span>
+    </div>
+  `;
+}
+
+function renderPathSection(title, items) {
+  if (!items.length) return "";
+  return `
+    <div class="section-title">${esc(title)}</div>
+    ${items.map(p => `
+      <div class="note" style="margin-bottom:10px;">
+        <div style="font-weight:800; color:rgba(232,234,240,.95); margin-bottom:6px;">${esc(p.title)}</div>
+        <ul class="list">
+          ${p.reasons.map(r => `<li>${esc(r)}</li>`).join("")}
+        </ul>
+      </div>
+    `).join("")}
+  `;
+}
+
+function buildCopyText(result) {
+  const lines = [];
+  lines.push("海南自贸港判断器｜政策路径判断结果");
+  lines.push("");
+
+  const order = [
+    ["✓ 可进入判断/路径成立", "ok"],
+    ["⚠ 条件成立（需补充/满足前置条件）", "cond"],
+    ["✕ 明确不成立", "no"],
+    ["ℹ 信息/路径不相关或精度受限", "info"],
+  ];
+
+  for (const [label, key] of order) {
+    const items = result.summary.byStatus[key] || [];
+    if (!items.length) continue;
+    lines.push(label);
+    items.forEach((p) => {
+      lines.push(`- ${p.title}`);
+      p.reasons.forEach(r => lines.push(`  • ${r}`));
+    });
+    lines.push("");
+  }
+
+  if (result.summary.notes?.length) {
+    lines.push("系统提示");
+    result.summary.notes.forEach(n => lines.push(`- ${n}`));
+    lines.push("");
+  }
+
+  lines.push(result.summary.disclaimer);
+  return lines.join("\n");
+}
+
+function esc(str) {
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }

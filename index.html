@@ -1,33 +1,22 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta charset="utf-8">
-  <title>海南自贸港判断器（MVP）</title>
-  <link rel="stylesheet" href="./assets/css/style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>海南自贸港判断器</title>
+  <meta name="description" content="基于政策路径的可行性判断辅助工具（不输出赚钱结论）。" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>海南自贸港判断器（MVP）</h1>
-    <p class="subtitle">...</p>
-    <form id="quizForm"></form>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title">海南自贸港判断器</div>
+      <div class="sub">只做“政策路径可行性判断”，不输出赚钱结论；进度与答案保存在本机。</div>
+    </div>
 
-    <div id="result"></div>
+    <div id="app" class="card"></div>
   </div>
 
-  <!-- 底部操作栏 -->
-  <div class="actions">
-    <button type="button" id="submitBtn" class="primary">下一题</button>
-    <button type="button" id="resetBtn" class="secondary">重新开始</button>
-  </div>
-  <div class="safe-bottom"></div>
-
-
-  <div id="result"></div>
-
-  <script src="./assets/js/data.js"></script>
-  <script src="./assets/js/rules.js"></script>
-  <script src="./assets/js/result.js"></script>
-  <script src="./assets/js/main.js"></script>
+  <script type="module" src="./assets/js/main.js"></script>
 </body>
 </html>
