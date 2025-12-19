@@ -1,0 +1,179 @@
+:root {
+  --bg: #f7f7f8;
+  --card: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 6px 18px rgba(0,0,0,.06);
+  --radius: 14px;
+  --maxw: 900px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body {
+  padding: 16px;
+  padding-bottom: 86px; /* 给底部操作栏留空间 */
+}
+
+h1 {
+  font-size: 18px;
+  margin: 6px 0 6px;
+}
+
+.subtitle {
+  margin: 0 0 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+}
+
+/* 问题卡片 */
+.question {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin: 12px 0;
+  box-shadow: var(--shadow);
+}
+
+.question h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.options {
+  display: grid;
+  gap: 10px;
+}
+
+/* 选项做成可点击的大块区域（手机关键） */
+.options label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.options label:active {
+  transform: scale(0.995);
+}
+
+/* radio 更好点按 */
+.options input[type="radio"] {
+  transform: scale(1.15);
+  margin-top: 2px;
+}
+
+/* 底部操作栏（固定） */
+.actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px;
+  background: rgba(247,247,248,0.92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+button.primary {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+
+button.secondary {
+  background: #ffffff;
+  color: #111827;
+}
+
+button:active {
+  transform: scale(0.995);
+}
+
+/* 结果 */
+.result-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-top: 16px;
+  box-shadow: var(--shadow);
+}
+
+.badge {
+  font-weight: 800;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.risks {
+  margin-top: 10px;
+  color: var(--text);
+}
+
+.risks ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.risks li {
+  margin: 6px 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* iOS 底部安全区 */
+.safe-bottom {
+  height: env(safe-area-inset-bottom);
+}
+
+/* ===== 桌面优化（宽屏时）===== */
+@media (min-width: 768px) {
+  body { padding: 24px; padding-bottom: 24px; }
+  .actions {
+    position: static;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    grid-template-columns: auto auto;
+    justify-content: flex-start;
+    max-width: var(--maxw);
+    margin: 14px auto 0;
+    padding: 0;
+  }
+  button { width: auto; min-width: 140px; }
+}
